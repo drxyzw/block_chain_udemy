@@ -1,0 +1,22 @@
+class TransactionPool {
+    constructor() {
+        this.transactions = [];
+    }
+
+    updateOrAddTransaction(transaction) {
+        let transactionWithId = this.transactions.find(t => t.id === transaction.id);
+
+        if (transactionWithId) {
+            this.transactions[this.transactions.indexOf(this.transactionWithId)] = transaction;
+        } else {
+            this.transactions.push(transaction);
+        }
+    }
+
+    existingTransaction(senderAddress) {
+        return this.transactions.find(t => t.input.address === senderAddress);
+    }
+    
+}
+
+module.exports = TransactionPool;
