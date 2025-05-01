@@ -28,12 +28,12 @@ class Wallet {
 
         let transaction = transactionPool.existingTransaction(this.publicKey); // publicKey is sender's address
 
-        if (transaction) { // if the same sender exists inn pool, then update the existing transaction
+        if (transaction) { // if the same sender exists in pool, then update the existing transaction
             transaction.update(this, recepient, amount);
         } else { // add a new transaction
             transaction = Transaction.newTransaction(this, recepient, amount);
-            transactionPool.updateOrAddTransaction(transaction);
         }
+        transactionPool.updateOrAddTransaction(transaction);
         return transaction;
     }
 }
