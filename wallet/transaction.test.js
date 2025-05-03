@@ -1,14 +1,15 @@
 const Transaction = require('./transaction');
 const Wallet = require('.');
+const { MINE_RATE, MINING_REWARD } = require('../config');
 
 describe('Transaction', () => {
-    let transaction, wallet, recepient, amount;
+    let transaction, wallet, recipient, amount;
 
     beforeEach(() => {
         wallet = new Wallet();
         amount = 50;
-        recepient = 'r3c1p13nt'
-        transaction = Transaction.newTransaction(wallet, recepient, amount);
+        recipient = 'r3c1p13nt'
+        transaction = Transaction.newTransaction(wallet, recipient, amount);
     });
 
     it('outputs the `amount` subtracted from the wallet balance', () => {
@@ -16,8 +17,8 @@ describe('Transaction', () => {
             .toEqual(wallet.balance - amount);        
     });
 
-    it('outputs the `amount` added to the recepient', () => {
-        expect(transaction.outputs.find(output => output.address === recepient).amount)
+    it('outputs the `amount` added to the recipient', () => {
+        expect(transaction.outputs.find(output => output.address === recipient).amount)
             .toEqual(amount);
     });
 
@@ -37,7 +38,7 @@ describe('Transaction', () => {
     describe('transacting with an amount that exceeds the balance', () => {
         beforeEach(() => {
             amount = 5000;
-            transaction = Transaction.newTransaction(wallet, recepient, amount);
+            transaction = Transaction.newTransaction(wallet, recipient, amount);
         });
         
         it('does not create the transaction', () => {
@@ -46,12 +47,12 @@ describe('Transaction', () => {
     });
 
     describe('and updating a transaction', () => {
-        let nextAmount, nextRecepient;
+        let nextAmount, nextrecipient;
 
         beforeEach(() => {
             nextAmount = 20;
-            nextRecepient = 'n3xt-4ddr355';
-            transaction = transaction.update(wallet, nextRecepient, nextAmount);
+            nextrecipient = 'n3xt-4ddr355';
+            transaction = transaction.update(wallet, nextrecipient, nextAmount);
         });
 
         it(`subtracts the next amount from the sender's output`, () => {
@@ -59,9 +60,20 @@ describe('Transaction', () => {
             .toEqual(wallet.balance - amount - nextAmount);
         });
 
-        it('outputs an amount for the next recepient', () => {
-            expect(transaction.outputs.find(output => output.address === nextRecepient).amount)
+        it('outputs an amount for the next recipient', () => {
+            expect(transaction.outputs.find(output => output.address === nextrecipient).amount)
             .toEqual(nextAmount);
-        })
-    })
+        });
+    });
+
+    describe('creating a reward transaction', () => {
+        beforeEach(() => {
+            transaction = Transaction.rewardTransaction(wallet, Wallet.blockchainWallet());
+        });
+
+        it(`reward the miner's wallet`, () => {
+            expect(transaction.outputs.find(output => output.address === wallet.publicKey // output wiht sender's address
+            ).amount).toEqual(MINING_REWARD);
+        });
+    });
 });
